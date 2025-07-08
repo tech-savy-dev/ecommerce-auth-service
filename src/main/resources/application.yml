@@ -24,3 +24,10 @@ spring:
 jwt:
   secret: SOME256BIT_SECRET_KEY_SHOULD_BE_32+CHARS_ECOMMERCE_256_CHARS_DEMO_INVERT
   expiration: 3600000  # 1 hour in ms
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+      base-path: /auth/api/actuator
