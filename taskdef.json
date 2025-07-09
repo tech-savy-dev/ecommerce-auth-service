@@ -1,5 +1,5 @@
 {
-  "family": "ecommerce-auth-service-dev",
+  "family": "dev-ecommerce-auth-service",
   "executionRoleArn": "<EXECUTION_ROLE_ARN>",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
