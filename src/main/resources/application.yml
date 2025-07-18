@@ -1,6 +1,5 @@
 server:
   port: 8080
-  forward-headers-strategy: framework
 spring:
   application:
     name: auth-service
@@ -9,8 +8,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 763522976792-s9uqqoals8b1vcavkqfmq23otobpd7ih.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 763522976792-efvnennkch02ti2an55n1beranvq239e.apps.googleusercontent.com
+            client-secret: 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
             scope:
               - openid
               - profile
@@ -21,7 +20,6 @@ spring:
             authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-            redirect-uri: https://www.shophealthysnacks.com/login/oauth2/code/google
 
 jwt:
   secret: SOME256BIT_SECRET_KEY_SHOULD_BE_32+CHARS_ECOMMERCE_256_CHARS_DEMO_INVERT
