@@ -21,7 +21,7 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
-    @GetMapping("/login")
+        @GetMapping("/login")
     public ResponseEntity<Map<String, String>> handleOAuth2Login(@AuthenticationPrincipal OAuth2User oauthUser) {
         String email = oauthUser.getAttribute("email");
         String jwt = jwtService.generateToken(email);
