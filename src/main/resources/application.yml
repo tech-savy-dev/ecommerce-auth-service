@@ -8,8 +8,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 763522976792-efvnennkch02ti2an55n1beranvq239e.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 763522976792-s9uqqoals8b1vcavkqfmq23otobpd7ih.apps.googleusercontent.com
+            client-secret: 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
             scope:
               - openid
               - profile
@@ -30,4 +30,4 @@ management:
     web:
       exposure:
         include: health
-      base-path: /auth/api/actuator
+      base-path:  /auth/api/actuator
