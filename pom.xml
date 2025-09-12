@@ -1,23 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
+
+  <!-- Inherits Spring Boot dependency management & plugin setup (assumed) -->
   <parent>
     <groupId>com.ecommerce</groupId>
     <artifactId>ecommerce-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <relativePath/> <!-- If published in repo, or adjust if in filesystem -->
+    <relativePath/><!-- Adjust if parent not published to repository -->
   </parent>
+
   <artifactId>auth-service</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>AuthService</name>
-  <description>Ecommerce AuthService</description>
-  <url/>
+  <description>Ecommerce Auth Service (Google OAuth2 / OIDC + JWT Issuance)</description>
+
   <properties>
     <java.version>21</java.version>
-    <io.jsonwebtoken>0.12.6</io.jsonwebtoken>
+
+    <!-- JWT (jjwt) already chosen; keep consistent -->
+    <jjwt.version>0.12.6</jjwt.version>
+
+    <!-- Optional: Google API client libs (uncomment when adding Gmail API calls) -->
+    <google.api-client.version>2.5.0</google.api-client.version>
+    <!-- For latest gmail API rev see: https://repo1.maven.org/maven2/com/google/apis/google-api-services-gmail/ -->
+    <gmail.api.version>v1-rev20240712-2.0.0</gmail.api.version>
+
+    <!-- If you switch to Nimbus for internal JWT signing: -->
+    <nimbus.jose.version>9.40</nimbus.jose.version>
+
+    <!-- Dependency / security tooling -->
+    <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
+    <spring-boot.maven.plugin.version> (managed by parent) </spring-boot.maven.plugin.version>
+    <enforcer.plugin.version>3.4.1</enforcer.plugin.version>
+    <owasp.dependency.check.version>9.2.0</owasp.dependency.check.version>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
   <repositories>
+    <!-- Your AWS CodeArtifact for shared internal artifacts -->
     <repository>
       <id>codeartifact</id>
       <url>https://ecommerce-domain-677450898543.d.codeartifact.ap-southeast-1.amazonaws.com/maven/ecommerce-shared/</url>
@@ -26,7 +51,9 @@
       </snapshots>
     </repository>
   </repositories>
+
   <dependencies>
+    <!-- Core Web + Actuator -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
@@ -35,6 +62,8 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
+
+    <!-- Security (Authorization Code + PKCE via oauth2-client) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
@@ -44,37 +73,87 @@
       <artifactId>spring-boot-starter-oauth2-client</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-api</artifactId>
-      <version>${io.jsonwebtoken}</version>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>2.5.0</version>
+    </dependency>
+
+    <!-- OPTIONAL: If later this service must also validate incoming Bearer tokens as a resource server -->
+    <!--
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+    </dependency>
+    -->
+
+
+    <!-- Nimbus JOSE JWT (used by InternalJwtService for RSA signing + JWKS) -->
+    <dependency>
+      <groupId>com.nimbusds</groupId>
+      <artifactId>nimbus-jose-jwt</artifactId>
+      <version>${nimbus.jose.version}</version>
+    </dependency>
+
+    <!-- OPTIONAL: Google API Client + Gmail API (enable when implementing Gmail features) -->
+    <!--
+    <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>${google.api-client.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-impl</artifactId>
-      <version>${io.jsonwebtoken}</version>
-      <scope>runtime</scope>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-gmail</artifactId>
+      <version>${gmail.api.version}</version>
+    </dependency>
+    -->
+
+    <!-- OPTIONAL: For distributed session storage (Redis) -->
+    <!--
+    <dependency>
+      <groupId>org.springframework.session</groupId>
+      <artifactId>spring-session-data-redis</artifactId>
     </dependency>
     <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-jackson</artifactId>
-      <version>${io.jsonwebtoken}</version>
-      <scope>runtime</scope>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
+    -->
+
+    <!-- (Optional) Micrometer / Prometheus already included transitively with actuator if configured -->
+    <!--
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+    </dependency>
+    -->
+
+    <!-- Testing -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <!-- Add junit-jupiter if parent does not already manage it -->
+    <!--
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    -->
   </dependencies>
 
   <build>
     <plugins>
+      <!-- Spring Boot packaging -->
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
           <mainClass>com.ecommerce.AuthServiceApplication</mainClass>
+          <!-- If using layered jars for container image optimization -->
+          <!-- <layers enabled="true"/> -->
         </configuration>
         <executions>
           <execution>
@@ -84,8 +163,87 @@
           </execution>
         </executions>
       </plugin>
+
+      <!-- Ensure Java release level (if parent not enforcing) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler.plugin.version}</version>
+        <configuration>
+          <release>${java.version}</release>
+        </configuration>
+      </plugin>
+
+      <!-- OPTIONAL: Enforce dependency convergence & other rules -->
+      <!--
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${enforcer.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>enforce-deps</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <DependencyConvergence/>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      -->
+
+      <!-- OPTIONAL: OWASP Dependency Check (security scanning) -->
+      <!--
+      <plugin>
+        <groupId>org.owasp</groupId>
+        <artifactId>dependency-check-maven</artifactId>
+        <version>${owasp.dependency.check.version}</version>
+        <configuration>
+          <format>HTML</format>
+          <failBuildOnCVSS>9</failBuildOnCVSS>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      -->
     </plugins>
   </build>
 
+  <!-- (Optional) Profiles for enabling Gmail or Redis in specific environments -->
+  <!--
+  <profiles>
+    <profile>
+      <id>gmail</id>
+      <activation>
+        <property>
+          <name>useGmail</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.google.api-client</groupId>
+          <artifactId>google-api-client</artifactId>
+          <version>${google.api-client.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.google.apis</groupId>
+          <artifactId>google-api-services-gmail</artifactId>
+          <version>${gmail.api.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+  -->
 
 </project>

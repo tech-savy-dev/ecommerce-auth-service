@@ -1,38 +1,48 @@
-server:
-  port: 8080
-  forward-headers-strategy: framework
-logging:
-  level:
-    org.springframework.security: DEBUG
-
 spring:
-  application:
-    name: auth-service
   security:
     oauth2:
       client:
         registration:
           google:
-            client-id: 763522976792-s9uqqoals8b1vcavkqfmq23otobpd7ih.apps.googleusercontent.com
-            client-secret: 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
-            scope:
-              - openid
-              - profile
-              - email
+#            client-id: ${GOOGLE_OAUTH_CLIENT_ID}
+#            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET}
+            client-id: 763522976792-efvnennkch02ti2an55n1beranvq239e.apps.googleusercontent.com
+            client-secret: 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
+            # Initial minimal scopes
+            scope: openid, profile, email
+            redirect-uri: "http://localhost:8080/login/oauth2/code/{registrationId}"
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: authorization_code
         provider:
           google:
-            user-name-attribute: email
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-
-jwt:
-  secret: SOME256BIT_SECRET_KEY_SHOULD_BE_32+CHARS_ECOMMERCE_256_CHARS_DEMO_INVERT
-  expiration: 3600000  # 1 hour in ms
+            issuer-uri: https://accounts.google.com
+server:
+  servlet:
+    session:
+      cookie:
+        name: APPSESSION
+        http-only: true
+        secure: true
+        same-site: Lax
+        path: /
+app:
+  security:
+    internal-jwt:
+      issuer: https://bff.example.com
+      ttl-seconds: 900
+      hmac-secret: "CHANGE_ME_MIN_32_CHARS_LONG_SAMPLE_SECRET_KEY_1234567890"
+  gmail:
+    enabled: true
+    # Additional Gmail scopes requested incrementally, not at initial login:
+    incremental-scopes:
+      - https://www.googleapis.com/auth/gmail.readonly
+  downstream:
+    product:
+      base-url: "http://localhost:8081/"
 
 management:
   endpoints:
     web:
       exposure:
         include: health
-      base-path:  /auth/api/actuator
+      base-path: /auth/api/actuator

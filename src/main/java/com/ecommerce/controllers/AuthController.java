@@ -1,37 +1,25 @@
 package com.ecommerce.controllers;
 
-import com.ecommerce.services.JwtService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
 public class AuthController {
 
-    private final JwtService jwtService;
-
-    public AuthController(JwtService jwtService) {
-        this.jwtService = jwtService;
+    @GetMapping("/api/v1/auth/me")
+    public ResponseEntity<?> me(HttpSession session) {
+        String userId = (String) session.getAttribute("USER_ID");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                .body(Map.of("authenticated", false));
+        }
+        return ResponseEntity.ok(Map.of(
+            "authenticated", true,
+            "userId", userId,
+            "email", session.getAttribute("USER_EMAIL")
+        ));
     }
-
-        @GetMapping("/login")
-    public ResponseEntity<Map<String, String>> handleOAuth2Login(@AuthenticationPrincipal OAuth2User oauthUser) {
-        String email = oauthUser.getAttribute("email");
-        String jwt = jwtService.generateToken(email);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("email", email);
-        response.put("token", jwt);
-
-        return ResponseEntity.ok(response);
-    }
-
-
 }
